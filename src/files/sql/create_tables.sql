@@ -1,13 +1,13 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
-create table public.preferences
+create table preferences
 (
     preference_id uuid        default uuid_generate_v4() not null,
     created_at    timestamptz default now() not null,
     status        boolean     default true  not null
 );
 
-create table public.preference_locales
+create table preference_locales
 (
     locale_id     uuid default uuid_generate_v4() not null,
     description   varchar(50)                     not null,
