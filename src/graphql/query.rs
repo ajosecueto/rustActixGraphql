@@ -12,7 +12,7 @@ impl QueryRoot {
     async fn get_preferences(&self, ctx: &Context<'_>) -> Vec<Preference> {
         let pool = ctx.data::<PgPool>().expect("Error");
         Repository::get_preferences(&pool).await.expect("Can't obtain preferences")
-            .iter()
+            .into_iter()
             .map(Preference::from)
             .collect()
     }
@@ -47,8 +47,8 @@ impl Preference {
 }
 
 
-impl From<&PreferenceEntity> for Preference {
-    fn from(entity: &PreferenceEntity) -> Self {
+impl From<PreferenceEntity> for Preference {
+    fn from(entity: PreferenceEntity) -> Self {
         Preference {
             preference_id: entity.preference_id.into(),
             created_at: entity.created_at,
