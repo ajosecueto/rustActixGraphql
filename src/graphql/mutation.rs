@@ -12,7 +12,7 @@ impl MutationRoot {
         let preference = Repository::create_preference(&pool).await.expect("Cant save preference");
         Repository::create_locales(
             preference.preference_id,
-            locales.iter().map(NewPreferenceLocaleEntity::from).collect(),
+            locales.into_iter().map(NewPreferenceLocaleEntity::from).collect(),
             &pool,
         ).await.expect("Cant save locales");
         return true;
@@ -30,12 +30,12 @@ struct PreferenceLocalesInput {
     video_url: Option<String>,
 }
 
-impl From<&PreferenceLocalesInput> for NewPreferenceLocaleEntity {
-    fn from(entity: &PreferenceLocalesInput) -> Self {
+impl From<PreferenceLocalesInput> for NewPreferenceLocaleEntity {
+    fn from(entity: PreferenceLocalesInput) -> Self {
         NewPreferenceLocaleEntity {
-            description: entity.description.clone(),
-            locale: entity.locale.clone(),
-            video_url: entity.video_url.clone(),
+            description: entity.description,
+            locale: entity.locale,
+            video_url: entity.video_url,
         }
     }
 }
