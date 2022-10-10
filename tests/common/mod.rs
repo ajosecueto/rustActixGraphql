@@ -4,7 +4,7 @@ use sqlx::PgPool;
 use testcontainers::clients::Cli;
 use testcontainers::{Container, RunnableImage};
 use testcontainers::images::postgres::Postgres;
-use rustActixGraphql::drivers::postgres::create_connection_pool;
+use rustActixGraphql::infrastructure::postgres::create_connection_pool;
 
 pub async fn setup(docker: &Cli) -> (Container<Postgres>, PgPool) {
     dotenv().ok();

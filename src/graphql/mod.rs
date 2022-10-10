@@ -8,8 +8,8 @@ use async_graphql::dataloader::DataLoader;
 use async_graphql::http::{playground_source, GraphQLPlaygroundConfig, GraphiQLSource};
 use async_graphql::{Context, EmptySubscription, Schema};
 use async_graphql_actix_web::{GraphQLRequest, GraphQLResponse, GraphQLSubscription};
+use rdkafka::producer::FutureProducer;
 use sqlx::PgPool;
-use crate::drivers;
 use crate::graphql::mutation::MutationRoot;
 use crate::graphql::query::QueryRoot;
 // use crate::graphql::mutation::MutationRoot;
@@ -59,12 +59,12 @@ async fn index_graphiql() -> Result<HttpResponse> {
         .content_type("text/html; charset=utf-8")
         .body(
             GraphiQLSource::build()
-                .endpoint("http://localhost:8000")
+                .endpoint("http://localhost:5000")
                 .finish(),
         ))
 }
 
-pub fn create_schema_with_context(pool: PgPool) -> Schema<QueryRoot, MutationRoot, EmptySubscription> {
+pub fn create_schema_with_context(pool: PgPool, producer: FutureProducer) -> Schema<QueryRoot, MutationRoot, EmptySubscription> {
     // let cloned_pool = Arc::clone(&arc_pool);
     // let details_data_loader =
     //     DataLoader::new(DetailsLoader { pool: cloned_pool }, actix_rt::spawn).max_batch_size(10);
@@ -76,7 +76,7 @@ pub fn create_schema_with_context(pool: PgPool) -> Schema<QueryRoot, MutationRoo
         // .limit_complexity(15)
         .data(pool.clone())
         // .data(details_data_loader)
-        .data(drivers::kafka::create_producer())
+        .data(producer.clone())
         .enable_subscription_in_federation()
         .finish()
 }

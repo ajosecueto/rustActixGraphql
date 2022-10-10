@@ -1,5 +1,8 @@
 use async_graphql::*;
+use rdkafka::producer::FutureProducer;
 use sqlx::PgPool;
+use crate::events;
+use crate::events::aggregation::AggregationEvent;
 use crate::persistence::models::NewPreferenceLocaleEntity;
 use crate::persistence::repository::Repository;
 
@@ -8,17 +11,12 @@ pub struct MutationRoot;
 #[Object]
 impl MutationRoot {
     async fn create_preference(&self, ctx: &Context<'_>, locales: Vec<PreferenceLocalesInput>) -> bool {
-        let pool = ctx.data::<PgPool>().expect("Error");
-        let preference = Repository::create_preference(&pool).await.expect("Cant save preference");
-        Repository::create_locales(
-            preference.preference_id,
-            locales.into_iter().map(NewPreferenceLocaleEntity::from).collect(),
-            &pool,
-        ).await.expect("Cant save locales");
+        // let pool = ctx.data::<PgPool>().expect("Error");
+        let producer = ctx.data::<FutureProducer>().expect("Error");
+        let locales: Vec<NewPreferenceLocaleEntity> = locales.into_iter().map(NewPreferenceLocaleEntity::from).collect();
+        AggregationEvent::preference_event(locales, &producer).await;
         return true;
     }
-
-
     // Edit video url by locale_id
 }
 

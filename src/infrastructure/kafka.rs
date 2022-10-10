@@ -17,6 +17,7 @@ lazy_static! {
 
 pub fn create_producer() -> FutureProducer {
     ClientConfig::new()
+        .set("group.id", "kafka")
         .set("bootstrap.servers", KAFKA_BROKER.as_str())
         .set("message.timeout.ms", "5000")
         .create()
@@ -48,7 +49,7 @@ pub fn get_kafka_consumer_group_id(kafka_consumer_counter: &Mutex<i32>) -> Strin
 }
 
 // TODO: send without caller blocking
-pub async fn send_message(producer: &FutureProducer, message: &str) {
+pub async fn send_message(producer: &FutureProducer, message: &[u8]) {
     let delivery_status = producer
         .send(
             FutureRecord::to(&KAFKA_TOPIC)

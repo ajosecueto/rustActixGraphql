@@ -16,6 +16,7 @@ pub struct PreferenceLocaleEntity {
     pub preference_id: Uuid,
 }
 
+#[derive(Clone)]
 pub struct NewPreferenceLocaleEntity {
     pub description: String,
     pub locale: String,
