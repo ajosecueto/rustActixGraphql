@@ -1,7 +1,11 @@
+use std::sync::Arc;
+
 use async_graphql::*;
 use chrono::{DateTime, Utc};
+use scylla::{Session, IntoTypedRows};
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
+use uuid::Uuid;
 use crate::persistence::models::PreferenceEntity;
 use crate::persistence::repository::Repository;
 
@@ -10,6 +14,13 @@ pub struct QueryRoot;
 #[Object]
 impl QueryRoot {
     async fn get_preferences(&self, ctx: &Context<'_>) -> Vec<Preference> {
+        let session = ctx.data::<Arc<Session>>().expect("Error");
+        if let Some(rows) = session.query("SELECT comment_id, description, post_id FROM comments.comments", &[]).await.expect("Can get rows").rows {
+            for row in rows.into_typed::<(Uuid, String, Uuid)>() {
+                let (a, b, c) = row.unwrap();
+                println!("a, b, c: {}, {}, {}", a, b, c);
+            }
+        }
         let pool = ctx.data::<PgPool>().expect("Error");
         Repository::get_preferences(&pool).await.expect("Can't obtain preferences")
             .into_iter()
