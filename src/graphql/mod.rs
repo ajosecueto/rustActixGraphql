@@ -2,8 +2,8 @@ mod mutation;
 mod query;
 mod subscriptions;
 
-use crate::graphql::mutation::MutationRoot;
-use crate::graphql::query::QueryRoot;
+use crate::graphql::mutation::Mutation;
+use crate::graphql::query::Query;
 use actix_web::{guard, web, HttpRequest, HttpResponse, Result};
 use async_graphql::dataloader::DataLoader;
 use async_graphql::http::{playground_source, GraphQLPlaygroundConfig, GraphiQLSource};
@@ -17,7 +17,7 @@ use std::sync::Arc;
 // use crate::graphql::subscriptions::SubscriptionRoot;
 
 // pub type AppSchema = Schema<QueryRoot, MutationRoot, SubscriptionRoot>;
-pub type AppSchema = Schema<QueryRoot, MutationRoot, EmptySubscription>;
+pub type AppSchema = Schema<Query, Mutation, EmptySubscription>;
 
 pub fn configure_service(cfg: &mut web::ServiceConfig) {
     cfg.service(
@@ -65,12 +65,12 @@ pub fn create_schema_with_context(
     pool: PgPool,
     session: Arc<Session>,
     producer: FutureProducer,
-) -> Schema<QueryRoot, MutationRoot, EmptySubscription> {
+    ) -> Schema<Query, Mutation, EmptySubscription> {
     // let cloned_pool = Arc::clone(&arc_pool);
     // let details_data_loader =
     //     DataLoader::new(DetailsLoader { pool: cloned_pool }, actix_rt::spawn).max_batch_size(10);
 
-    Schema::build(QueryRoot, MutationRoot, EmptySubscription)
+    Schema::build(Query, Mutation, EmptySubscription)
         // limits are commented out, because otherwise introspection query won't work
         // .limit_depth(3)
         // .limit_complexity(15)
@@ -78,6 +78,5 @@ pub fn create_schema_with_context(
         .data(session.clone())
         // .data(details_data_loader)
         .data(producer.clone())
-        .enable_subscription_in_federation()
         .finish()
 }

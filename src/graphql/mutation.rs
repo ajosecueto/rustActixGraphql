@@ -6,10 +6,10 @@ use crate::events::aggregation::AggregationEvent;
 use crate::persistence::models::NewPreferenceLocaleEntity;
 use crate::persistence::repository::Repository;
 
-pub struct MutationRoot;
+pub struct Mutation;
 
 #[Object]
-impl MutationRoot {
+impl Mutation {
     async fn create_preference(&self, ctx: &Context<'_>, locales: Vec<PreferenceLocalesInput>) -> bool {
         // let pool = ctx.data::<PgPool>().expect("Error");
         let producer = ctx.data::<FutureProducer>().expect("Error");

@@ -23,14 +23,14 @@ async fn main() -> std::io::Result<()> {
     actix_rt::spawn(async move { reducer.start_consumer().await });
     let producer = create_producer();
     let schema = web::Data::new(create_schema_with_context(pool, session, producer));
-    println!("GraphiQL IDE: http://localhost:5000");
+    println!("GraphiQL IDE: http://localhost:6000");
 
     HttpServer::new(move || {
         App::new()
             .configure(configure_service)
             .app_data(schema.clone())
     })
-        .bind("0.0.0.0:5000")?
+        .bind("0.0.0.0:6000")?
         .run()
         .await
 }

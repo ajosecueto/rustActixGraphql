@@ -17,8 +17,17 @@ impl Repository {
         Ok(preference)
     }
 
-    pub async fn get_preference(preference_id: Uuid, pool: &PgPool) -> Result<Vec<PreferenceEntity>, sqlx::Error> {
-        todo!()
+    pub async fn get_preference(preference_id: Uuid, pool: &PgPool) -> Result<PreferenceEntity, sqlx::Error> {
+        let values: PreferenceEntity = sqlx::query_as!(PreferenceEntity, r#"
+        SELECT
+        *
+        FROM
+        preferences
+        "#).fetch_one(pool).await?;
+
+        Ok(
+                values
+        )
     }
 
     pub async fn get_preferences(pool: &PgPool) -> Result<Vec<PreferenceEntity>, sqlx::Error> {
